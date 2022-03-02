@@ -4,38 +4,36 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ps.test.code.mobilesdeexercise.data.local.dto.DriversDto
-import com.ps.test.code.mobilesdeexercise.data.local.dto.ShipmentsDto
-import com.ps.test.code.mobilesdeexercise.domain.repository.ServerDataRepository
+import com.ps.test.code.mobilesdeexercise.domain.usecase.GetDriversData
+import com.ps.test.code.mobilesdeexercise.domain.usecase.GetShipmentsData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val serverDataRepository: ServerDataRepository) :
+class MainViewModel @Inject constructor(
+    private val shipmentsData: GetShipmentsData,
+    private val driversData: GetDriversData
+) :
     ViewModel() {
-    private var shipmentLiveData: MutableLiveData<ShipmentsDto> = MutableLiveData()
-    private val _shipmentLiveData: LiveData<ShipmentsDto> = shipmentLiveData
-    private var driverLiveData: MutableLiveData<DriversDto> = MutableLiveData()
-    private val _driverLiveData: LiveData<DriversDto> = driverLiveData
+    private var shipmentLiveData: MutableLiveData<List<String>> = MutableLiveData()
+    private val _shipmentLiveData: LiveData<List<String>> = shipmentLiveData
+    private var driverLiveData: MutableLiveData<List<String>> = MutableLiveData()
+    private val _driverLiveData: LiveData<List<String>> = driverLiveData
 
-    fun getShipmentData(): LiveData<ShipmentsDto> {
-        viewModelScope.launch(Dispatchers.IO) {
-            serverDataRepository.getShipmentsData().let {
-                shipmentLiveData.postValue(it)
-            }
-        }
+    fun getShipmentData(): LiveData<List<String>> {
+        shipmentsData.invoke().onEach { data ->
+            shipmentLiveData.postValue(data)
+        }.launchIn(viewModelScope)
 
         return _shipmentLiveData
     }
 
-    fun getDriverData(): LiveData<DriversDto> {
-        viewModelScope.launch(Dispatchers.IO) {
-            serverDataRepository.getDriversData().let {
-                driverLiveData.postValue(it)
-            }
-        }
+    fun getDriverData(): LiveData<List<String>> {
+        driversData.invoke().onEach { data ->
+            driverLiveData.postValue(data)
+        }.launchIn(viewModelScope)
 
         return _driverLiveData
     }

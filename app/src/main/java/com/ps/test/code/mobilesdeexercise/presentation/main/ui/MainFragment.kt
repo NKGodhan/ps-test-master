@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -18,7 +19,7 @@ import com.ps.test.code.mobilesdeexercise.presentation.main.viewmodels.MainViewM
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListener {
     private var _binding: FragmentMainBinding? = null
 
     private val _mainViewModel: MainViewModel by activityViewModels()
@@ -48,6 +49,10 @@ class MainFragment : Fragment() {
         _binding = null
     }
 
+    override fun onItemClicked(index: Int) {
+        Toast.makeText(requireActivity(), "Item clicked: $index", Toast.LENGTH_SHORT).show()
+    }
+
     private fun initialize() {
         initViews()
         initViewsListeners()
@@ -71,11 +76,11 @@ class MainFragment : Fragment() {
 
             binding.recyclerView.addItemDecoration(dividerItemDecoration)
         } catch (e: NullPointerException) {
-            e.stackTrace
+            e.printStackTrace()
         } catch (e: IllegalArgumentException) {
             throw IllegalArgumentException("Drawable cannot be null. Check the resources again!")
         } catch (e: Exception) {
-            e.stackTrace
+            e.printStackTrace()
         }
     }
 
@@ -97,7 +102,7 @@ class MainFragment : Fragment() {
     }
 
     private fun initAdapter() {
-        rvAdapter = RecyclerViewAdapter(emptyList())
+        rvAdapter = RecyclerViewAdapter(emptyList(), this)
         binding.recyclerView.adapter = rvAdapter
     }
 
@@ -107,15 +112,25 @@ class MainFragment : Fragment() {
 
     private fun initDataObservers() {
         _mainViewModel.getShipmentData().observe(viewLifecycleOwner) { result ->
-            result.shipments?.apply {
-                shipmentsList = this
+            try {
+                shipmentsList = result
                 updateAdapterData(shipmentsList)
+            } catch (npe: NullPointerException) {
+                npe.printStackTrace()
+                // Also can show error messages here accordingly
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
         _mainViewModel.getDriverData().observe(viewLifecycleOwner) { result ->
-            result.drivers?.apply {
-                driversList = this
+            try {
+                driversList = result
+            } catch (npe: NullPointerException) {
+                npe.printStackTrace()
+                // Also can show error messages here accordingly
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

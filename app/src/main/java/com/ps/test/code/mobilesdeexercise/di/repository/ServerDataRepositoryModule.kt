@@ -5,6 +5,8 @@ import com.google.gson.Gson
 import com.ps.test.code.mobilesdeexercise.data.dataparser.JsonDataParser
 import com.ps.test.code.mobilesdeexercise.data.repository.ServerDataRepositoryImp
 import com.ps.test.code.mobilesdeexercise.domain.repository.ServerDataRepository
+import com.ps.test.code.mobilesdeexercise.domain.usecase.GetDriversData
+import com.ps.test.code.mobilesdeexercise.domain.usecase.GetShipmentsData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,5 +34,17 @@ object ServerDataRepositoryModule {
     @Provides
     fun provideGsonObject(): Gson {
         return Gson()
+    }
+
+    @Singleton
+    @Provides
+    fun provideGetShipmentsData(repository: ServerDataRepository): GetShipmentsData {
+        return GetShipmentsData(repository)
+    }
+
+    @Singleton
+    @Provides
+    fun provideGetDriversData(repository: ServerDataRepository): GetDriversData {
+        return GetDriversData(repository)
     }
 }
