@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="fab_margin">48dp</dimen>
+    <dimen name="title_margin">72dp</dimen>
+    <dimen name="card_view_padding">24dp</dimen>
+</resources>

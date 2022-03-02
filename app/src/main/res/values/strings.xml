@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MobileSdeExercise</string>
+    <string name="filter_message">Filter</string>
+    <string name="list_item_temp_title">Recycler View item 1</string>
+</resources>
