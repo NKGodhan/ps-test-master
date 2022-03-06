@@ -16,6 +16,7 @@ import com.ps.test.code.mobilesdeexercise.R
 import com.ps.test.code.mobilesdeexercise.databinding.FragmentMainBinding
 import com.ps.test.code.mobilesdeexercise.presentation.main.ui.adapter.RecyclerViewAdapter
 import com.ps.test.code.mobilesdeexercise.presentation.main.viewmodels.MainViewModel
+import com.ps.test.code.mobilesdeexercise.utils.isLengthEvenOrOdd
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -50,7 +51,7 @@ class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListen
     }
 
     override fun onItemClicked(index: Int) {
-        Toast.makeText(requireActivity(), "Item clicked: $index", Toast.LENGTH_SHORT).show()
+        _mainViewModel.getAddressDriverAssigned(shipmentsList[index].isLengthEvenOrOdd())
     }
 
     private fun initialize() {
@@ -132,6 +133,21 @@ class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListen
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        _mainViewModel._assignedDriverLiveData.observe(viewLifecycleOwner) { driverName ->
+            if (driverName == null) {
+                Toast.makeText(
+                    requireActivity(),
+                    "Something went wrong! Driver list is empty.",
+                    Toast.LENGTH_LONG
+                )
+                    .show()
+                return@observe
+            }
+
+            Toast.makeText(requireActivity(), "Assigned driver is: $driverName", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 }

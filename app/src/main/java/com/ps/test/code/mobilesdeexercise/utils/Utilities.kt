@@ -23,3 +23,8 @@ class Utilities {
         }
     }
 }
+
+enum class NumberState(val state: Int) {
+    EVEN(0),
+    ODD(1)
+}
