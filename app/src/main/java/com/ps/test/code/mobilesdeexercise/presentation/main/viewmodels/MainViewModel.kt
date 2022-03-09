@@ -60,11 +60,9 @@ class MainViewModel @Inject constructor(
         getDriverAssociatedAddressList()
     }
 
-    private fun getDriverAssociatedAddressList(): LiveData<List<String>> {
+    private fun getDriverAssociatedAddressList() {
         driverAssignedAddress.invoke(_associatedDriversLiveData.value).onEach { addressList ->
             associatedAddressLiveData.postValue(addressList)
         }.launchIn(viewModelScope)
-
-        return _associatedAddressLiveData
     }
 }
