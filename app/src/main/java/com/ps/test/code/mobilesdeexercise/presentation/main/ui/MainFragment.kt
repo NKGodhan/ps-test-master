@@ -1,10 +1,10 @@
 package com.ps.test.code.mobilesdeexercise.presentation.main.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -16,18 +16,23 @@ import com.ps.test.code.mobilesdeexercise.R
 import com.ps.test.code.mobilesdeexercise.databinding.FragmentMainBinding
 import com.ps.test.code.mobilesdeexercise.presentation.main.ui.adapter.RecyclerViewAdapter
 import com.ps.test.code.mobilesdeexercise.presentation.main.viewmodels.MainViewModel
-import com.ps.test.code.mobilesdeexercise.utils.isLengthEvenOrOdd
+import com.ps.test.code.mobilesdeexercise.utils.Utilities
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListener {
+    private val TAG = MainFragment::class.java.simpleName
+
     private var _binding: FragmentMainBinding? = null
 
     private val _mainViewModel: MainViewModel by activityViewModels()
     private val binding get() = _binding!!
+
     private var isDestinationLoaded = true
     private var shipmentsList: List<String> = listOf()
     private var driversList: List<String> = listOf()
+    private var associatedDriversList: List<String> = listOf()
+    private var associatedAddressList: List<String> = listOf()
 
     private lateinit var rvAdapter: RecyclerViewAdapter
 
@@ -51,9 +56,18 @@ class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListen
     }
 
     override fun onItemClicked(index: Int) {
-        _mainViewModel.getAddressDriverAssigned(shipmentsList[index].isLengthEvenOrOdd())
+        val message: String = if (isDestinationLoaded) {
+            "Assigned to the driver: ${associatedDriversList[index]}"
+        } else {
+            "Assigned address is: ${associatedAddressList[index]}"
+        }
+
+        Utilities.showToastMessage(requireContext(), message)
     }
 
+    /**
+     * Function to initialize presentation components
+     */
     private fun initialize() {
         initViews()
         initViewsListeners()
@@ -61,6 +75,9 @@ class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListen
         initDataObservers()
     }
 
+    /**
+     * Function to initialize inner views/components related to RecyclerView; including Filter text come button view
+     */
     private fun initViews() {
         val dividerItemDecoration = DividerItemDecoration(
             requireActivity(),
@@ -76,15 +93,19 @@ class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListen
             )
 
             binding.recyclerView.addItemDecoration(dividerItemDecoration)
-        } catch (e: NullPointerException) {
-            e.printStackTrace()
-        } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("Drawable cannot be null. Check the resources again!")
+        } catch (npe: NullPointerException) {
+            npe.printStackTrace()
+        } catch (iae: IllegalArgumentException) {
+            iae.printStackTrace()
+            Log.e(TAG, resources.getString(R.string.filter_drawable_error_message))
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
+    /**
+     * Function to initialize event listeners for views
+     */
     private fun initViewsListeners() {
         binding.filterView.setOnClickListener { view ->
             val changedDrawableIcon = ContextCompat.getDrawable(
@@ -102,15 +123,24 @@ class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListen
         }
     }
 
+    /**
+     * Function to initialize RecyclerView adapter
+     */
     private fun initAdapter() {
         rvAdapter = RecyclerViewAdapter(emptyList(), this)
         binding.recyclerView.adapter = rvAdapter
     }
 
+    /**
+     * Function to update data in the adapter
+     */
     private fun updateAdapterData(data: List<String>) {
         rvAdapter.setData(data)
     }
 
+    /**
+     * Function to subscribe all the data observers to populate data and communicate through different UI portion, if needed.
+     */
     private fun initDataObservers() {
         _mainViewModel.getShipmentData().observe(viewLifecycleOwner) { result ->
             try {
@@ -118,7 +148,7 @@ class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListen
                 updateAdapterData(shipmentsList)
             } catch (npe: NullPointerException) {
                 npe.printStackTrace()
-                // Also can show error messages here accordingly
+                Log.e(TAG, resources.getString(R.string.shipping_list_empty_error_message))
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -129,25 +159,33 @@ class MainFragment : Fragment(), RecyclerViewAdapter.RecyclerViewItemClickListen
                 driversList = result
             } catch (npe: NullPointerException) {
                 npe.printStackTrace()
-                // Also can show error messages here accordingly
+                Log.e(TAG, resources.getString(R.string.driver_list_empty_error_message))
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
 
-        _mainViewModel._assignedDriverLiveData.observe(viewLifecycleOwner) { driverName ->
-            if (driverName == null) {
-                Toast.makeText(
-                    requireActivity(),
-                    "Something went wrong! Driver list is empty.",
-                    Toast.LENGTH_LONG
-                )
-                    .show()
-                return@observe
+        _mainViewModel.getAddressAssociatedDriversList().observe(viewLifecycleOwner) { result ->
+            try {
+                associatedDriversList = result
+                _mainViewModel.subscribeAddressObserver()
+            } catch (npe: NullPointerException) {
+                npe.printStackTrace()
+                Log.e(TAG, resources.getString(R.string.list_mapping_error_message))
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+        }
 
-            Toast.makeText(requireActivity(), "Assigned driver is: $driverName", Toast.LENGTH_SHORT)
-                .show()
+        _mainViewModel._associatedAddressLiveData.observe(viewLifecycleOwner) { result ->
+            try {
+                associatedAddressList = result
+            } catch (npe: NullPointerException) {
+                npe.printStackTrace()
+                Log.e(TAG, resources.getString(R.string.list_mapping_error_message))
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }

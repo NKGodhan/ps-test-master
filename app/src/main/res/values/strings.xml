@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">MobileSdeExercise</string>
-    <string name="filter_message">Filter</string>
+
+    <!-- Presentation -->
+    <string name="filter_text">Filter</string>
     <string name="list_item_temp_title">Recycler View item 1</string>
+
+    <!-- Event Messages -->
+    <string name="shipping_list_empty_error_message">Something went wrong! Shipping list is empty.</string>
+    <string name="driver_list_empty_error_message">Something went wrong! Driver list is empty.</string>
+    <string name="list_mapping_error_message">Something went wrong! Shipping address and Driver list mapping error.</string>
+    <string name="filter_drawable_error_message">Drawable cannot be null. Check the resources again.</string>
 </resources>

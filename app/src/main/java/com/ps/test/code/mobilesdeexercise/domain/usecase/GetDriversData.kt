@@ -5,7 +5,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
+/***
+ * Use-case Class to invoke driver data
+ * @param dataRepository data repository which gets data out of Data source
+ */
 class GetDriversData @Inject constructor(private val dataRepository: ServerDataRepository) {
+    /**
+     * Operator function to invoke list of all drivers
+     */
     operator fun invoke(): Flow<List<String>?> = flow {
         emit(dataRepository.getDriversData().drivers)
     }

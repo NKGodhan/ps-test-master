@@ -5,9 +5,9 @@ import com.google.gson.Gson
 import com.ps.test.code.mobilesdeexercise.data.dataparser.JsonDataParser
 import com.ps.test.code.mobilesdeexercise.data.repository.ServerDataRepositoryImp
 import com.ps.test.code.mobilesdeexercise.domain.repository.ServerDataRepository
+import com.ps.test.code.mobilesdeexercise.domain.usecase.GetAddressAssociatedDriver
+import com.ps.test.code.mobilesdeexercise.domain.usecase.GetDriverAssignedAddress
 import com.ps.test.code.mobilesdeexercise.domain.usecase.GetDriversData
-import com.ps.test.code.mobilesdeexercise.domain.usecase.GetEvenAddressDriver
-import com.ps.test.code.mobilesdeexercise.domain.usecase.GetOddAddressDriver
 import com.ps.test.code.mobilesdeexercise.domain.usecase.GetShipmentsData
 import dagger.Module
 import dagger.Provides
@@ -52,13 +52,13 @@ object ServerDataRepositoryModule {
 
     @Singleton
     @Provides
-    fun provideGetEvenAddressDriver(repository: ServerDataRepository): GetEvenAddressDriver {
-        return GetEvenAddressDriver(repository)
+    fun provideGetAddressAssociatedDriver(repository: ServerDataRepository): GetAddressAssociatedDriver {
+        return GetAddressAssociatedDriver(repository)
     }
 
     @Singleton
     @Provides
-    fun provideGetOddAddressDriver(repository: ServerDataRepository): GetOddAddressDriver {
-        return GetOddAddressDriver(repository)
+    fun provideGetDriverAssociatedAddress(repository: ServerDataRepository): GetDriverAssignedAddress {
+        return GetDriverAssignedAddress(repository)
     }
 }
